@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section with 3D Model and Particles -->
+<section class="bg-blue-100 py-12 mb-8 relative overflow-hidden parallax-bg">
+    <div id="particles-js" class="absolute inset-0"></div>
+    <div class="container mx-auto text-center relative z-10">
+        <h1 class="text-4xl font-bold mb-4 gsap-fade-in">Discover Your Next Book</h1>
+        <p class="text-lg text-gray-600 mb-6 gsap-fade-in" data-delay="0.2">Explore our collection with a 3D experience!</p>
+        <div id="threejs-canvas" class="w-full h-64 mx-auto"></div>
+        <a href="{% url 'search_books' %}" 
+           class="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition duration-300 gsap-fade-in ripple-button" data-delay="0.4">Browse Books</a>
+    </div>
+</section>
+
+<!-- Recommended Books Section -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold mb-6 text-center gsap-fade-in">Recommended for You</h2>
+    <p class="text-center text-gray-600 mb-4">Curated picks based on availability and popularity</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for book in recommended_books %}
+        <div class="bg-gray-50 p-4 rounded-lg shadow hover:shadow-lg hover:scale-105 transition duration-300 book-card">
+            <a href="{% url 'book_detail' book.id %}">
+                {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" 
+                         alt="{{ book.title }} cover" 
+                         class="w-full h-48 object-cover rounded mb-4">
+                {% else %}
+                    <img src="https://via.placeholder.com/128x192.png?text=No+Cover" 
+                         alt="{{ book.title }} cover" 
+                         class="w-full h-48 object-cover rounded mb-4">
+                {% endif %}
+                <h3 class="text-lg font-semibold truncate">{{ book.title }}</h3>
+            </a>
+            <p class="text-gray-600 text-sm">by {{ book.author }}</p>
+            <p class="text-gray-500 text-sm">ISBN: {{ book.isbn }}</p>
+            <p class="text-sm">Available: {{ book.available_copies }}/{{ book.total_copies }}</p>
+            <a href="{% url 'book_detail' book.id %}" 
+               class="mt-2 inline-block text-blue-600 hover:underline">View Details</a>
+        </div>
+        {% empty %}
+        <p class="col-span-full text-center text-gray-600">No recommendations available.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Featured Books Section -->
+<section class="mb-12 parallax-bg">
+    <h2 class="text-2xl font-bold mb-6 text-center gsap-fade-in">Featured Books</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for book in books %}
+        <div class="bg-gray-50 p-4 rounded-lg shadow hover:shadow-lg hover:scale-105 transition duration-300 book-card">
+            <a href="{% url 'book_detail' book.id %}">
+                {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" 
+                         alt="{{ book.title }} cover" 
+                         class="w-full h-48 object-cover rounded mb-4">
+                {% else %}
+                    <img src="https://via.placeholder.com/128x192.png?text=No+Cover" 
+                         alt="{{ book.title }} cover" 
+                         class="w-full h-48 object-cover rounded mb-4">
+                {% endif %}
+                <h3 class="text-lg font-semibold truncate">{{ book.title }}</h3>
+            </a>
+            <p class="text-gray-600 text-sm">by {{ book.author }}</p>
+            <p class="text-gray-500 text-sm">ISBN: {{ book.isbn }}</p>
+            <p class="text-sm">Available: {{ book.available_copies }}/{{ book.total_copies }}</p>
+            <a href="{% url 'book_detail' book.id %}" 
+               class="mt-2 inline-block text-blue-600 hover:underline">View Details</a>
+        </div>
+        {% empty %}
+        <p class="col-span-full text-center text-gray-600">No books available.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- About Us Section -->
+<section class="bg-gray-200 py-12 mb-12 parallax-bg">
+    <div class="container mx-auto text-center">
+        <h2 class="text-2xl font-bold mb-4 gsap-fade-in">About Our Library</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto gsap-fade-in" data-delay="0.2">
+            We bring stories to life with cutting-edge technology, making reading an immersive adventure for all.
+        </p>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="bg-blue-600 text-white py-12 text-center gsap-fade-in">
+    <div class="container mx-auto">
+        <h2 class="text-2xl font-bold mb-4">Join the Reading Revolution</h2>
+        <p class="mb-6">Sign up or dive into your dashboard to start renting!</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" 
+               class="bg-white text-blue-600 py-2 px-6 rounded hover:bg-gray-100 transition duration-300 ripple-button">Go to Dashboard</a>
+        {% else %}
+            <a href="{% url 'login' %}" 
+               class="bg-white text-blue-600 py-2 px-6 rounded hover:bg-gray-100 transition duration-300 ripple-button">Login Now</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

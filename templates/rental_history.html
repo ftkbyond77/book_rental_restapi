@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md animate__animated animate__fadeIn">
+    <h1 class="text-2xl font-bold mb-6 text-center gsap-fade-in">Rental History</h1>
+    {% if rentals %}
+        <div class="overflow-x-auto">
+            <table class="w-full bg-white shadow-md rounded table-auto">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-2 text-left">Book Title</th>
+                        <th class="p-2 text-left">Rental Date</th>
+                        <th class="p-2 text-left">Return Date</th>
+                        <th class="p-2 text-left">Status</th>
+                        <th class="p-2 text-left">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rental in rentals %}
+                    <tr class="hover:bg-gray-100 transition duration-300 table-row">
+                        <td class="p-2">
+                            <a href="{% url 'book_detail' rental.book.id %}" class="text-blue-600 hover:underline">
+                                {{ rental.book.title }}
+                            </a>
+                        </td>
+                        <td class="p-2">{{ rental.rental_date|date:"Y-m-d" }}</td>
+                        <td class="p-2">{{ rental.return_date|date:"Y-m-d"|default:"Not returned" }}</td>
+                        <td class="p-2">
+                            {% if rental.is_returned %}
+                                <span class="text-green-600">Returned</span>
+                            {% else %}
+                                <span class="text-red-600">Active</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-2">
+                            {% if not rental.is_returned %}
+                                <form method="post" action="{% url 'return_book' rental.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 transition duration-300 rent-button">
+                                        Return
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-gray-500">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-gray-600 text-center">You have no rental history.</p>
+    {% endif %}
+    <a href="{% url 'home' %}" class="text-blue-600 hover:underline mt-4 inline-block block mx-auto text-center">Back to Home</a>
+</div>
+{% endblock %}
