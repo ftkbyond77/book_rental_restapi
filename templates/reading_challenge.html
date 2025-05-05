@@ -1,0 +1,108 @@
+<!-- reading_challenge.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto py-8" 
+     x-data="{
+         challenge: {},
+         loading: true,
+         newChallenge: { target: 12, year: new Date().getFullYear() },
+         async fetchChallenge() {
+             const response = await fetch('/api/reading-challenge/');
+             this.challenge = await response.json();
+             this.loading = false;
+         },
+         async createChallenge() {
+             const response = await fetch('/api/reading-challenge/', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(this.newChallenge)
+             });
+             await this.fetchChallenge();
+         }
+     }"
+     x-init="fetchChallenge()">
+    
+    <h1 class="text-3xl font-bold mb-8">Reading Challenge</h1>
+    
+    <template x-if="loading">
+        <div class="text-center py-12">Loading your challenge...</div>
+    </template>
+
+    <template x-if="!loading && challenge.id">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">
+                    <span x-text="challenge.year"></span> Reading Challenge
+                </h2>
+                <span class="text-lg font-medium">
+                    <span x-text="challenge.completed"></span> of 
+                    <span x-text="challenge.target"></span> books
+                </span>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-6 mb-4">
+                <div 
+                    class="bg-green-500 h-6 rounded-full text-white text-center text-sm leading-6" 
+                    :style="`width: ${Math.min(100, (challenge.completed / challenge.target) * 100)}%`"
+                    x-text="`${Math.round((challenge.completed / challenge.target) * 100)}%`">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-blue-800">Books Read</h3>
+                    <p class="text-3xl font-bold" x-text="challenge.completed"></p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-purple-800">Remaining</h3>
+                    <p class="text-3xl font-bold" x-text="challenge.target - challenge.completed"></p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-green-800">On Track</h3>
+                    <p class="text-3xl font-bold" x-text="challenge.on_track ? 'Yes' : 'No'"></p>
+                </div>
+            </div>
+            
+            <h3 class="text-xl font-semibold mb-3">Completed Books</h3>
+            <div class="space-y-3">
+                <template x-for="book in challenge.books" :key="book.id">
+                    <div class="flex items-center p-3 border rounded-lg">
+                        <img :src="book.cover_url" class="w-12 h-16 object-cover mr-4">
+                        <div>
+                            <h4 x-text="book.title" class="font-medium"></h4>
+                            <p x-text="book.author" class="text-sm text-gray-600"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="!loading && !challenge.id">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
+            <h2 class="text-xl font-semibold mb-4">Start Your Reading Challenge</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Year</label>
+                    <input type="number" x-model="newChallenge.year" 
+                           class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Target Books</label>
+                    <select x-model="newChallenge.target" class="w-full p-2 border rounded">
+                        <option value="12">12 (1 per month)</option>
+                        <option value="24">24 (2 per month)</option>
+                        <option value="52">52 (1 per week)</option>
+                        <option value="100">100 (Ambitious!)</option>
+                    </select>
+                </div>
+                <button @click="createChallenge()" 
+                        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                    Start Challenge
+                </button>
+            </div>
+        </div>
+    </template>
+</div>
+{% endblock %}

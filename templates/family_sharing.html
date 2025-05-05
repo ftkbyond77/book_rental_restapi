@@ -1,0 +1,96 @@
+<!-- family_sharing.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto py-8"
+     x-data="{
+         familyMembers: [],
+         loading: true,
+         newMember: { email: '', relationship: 'child' },
+         async fetchFamily() {
+             const response = await fetch('/api/family/');
+             this.familyMembers = await response.json();
+             this.loading = false;
+         },
+         async addMember() {
+             const response = await fetch('/api/family/', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(this.newMember)
+             });
+             await this.fetchFamily();
+             this.newMember = { email: '', relationship: 'child' };
+         },
+         async removeMember(memberId) {
+             await fetch(`/api/family/${memberId}/`, { method: 'DELETE' });
+             await this.fetchFamily();
+         }
+     }"
+     x-init="fetchFamily()">
+    
+    <h1 class="text-3xl font-bold mb-6">Family Sharing</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-xl font-semibold mb-4">Add Family Member</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Email</label>
+                <input type="email" x-model="newMember.email" 
+                       class="w-full p-2 border rounded" placeholder="member@example.com">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Relationship</label>
+                <select x-model="newMember.relationship" class="w-full p-2 border rounded">
+                    <option value="child">Child</option>
+                    <option value="spouse">Spouse</option>
+                    <option value="parent">Parent</option>
+                    <option value="sibling">Sibling</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button @click="addMember()" 
+                        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    Invite
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <template x-if="loading">
+        <div class="text-center py-12">Loading family members...</div>
+    </template>
+
+    <div class="space-y-4">
+        <template x-for="member in familyMembers" :key="member.id">
+            <div class="bg-white p-4 rounded-lg shadow-md flex justify-between items-center">
+                <div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+                            <span x-text="member.name.charAt(0).toUpperCase()" class="text-lg font-medium"></span>
+                        </div>
+                        <div>
+                            <h3 x-text="member.name" class="font-medium"></h3>
+                            <p class="text-sm text-gray-600" 
+                               x-text="`${member.email} • ${member.relationship}`"></p>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-sm" 
+                              x-text="`Currently reading: ${member.current_book || 'Nothing'}`"></span>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <a :href="`/users/${member.id}/reading-history/`" 
+                       class="bg-blue-100 text-blue-800 px-3 py-1 rounded text-sm hover:bg-blue-200">
+                        View Reads
+                    </a>
+                    <button @click="removeMember(member.id)" 
+                            class="bg-red-100 text-red-800 px-3 py-1 rounded text-sm hover:bg-red-200">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
+{% endblock %}

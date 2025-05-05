@@ -24,11 +24,33 @@
                 <a href="{% url 'home' %}" class="hover:text-blue-200 transition duration-300">Home</a>
                 <a href="{% url 'dashboard' %}" class="hover:text-blue-200 transition duration-300">Dashboard</a>
                 <a href="{% url 'categories' %}" class="hover:text-blue-200 transition duration-300">Categories</a>
+                
+                <!-- Community Dropdown -->
+                <div class="relative group">
+                    <div class="flex items-center">
+                        <a href="{% url 'book_clubs' %}" class="hover:text-blue-200 transition duration-300">Community</a>
+                        <button class="pl-1 focus:outline-none">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="absolute left-0 hidden group-hover:block bg-blue-600 p-2 rounded shadow-lg z-20 min-w-max mt-2">
+                        <a href="{% url 'book_clubs' %}" class="block px-4 py-2 hover:bg-blue-700 whitespace-nowrap">Book Clubs</a>
+                        <a href="{% url 'reading_challenge' %}" class="block px-4 py-2 hover:bg-blue-700 whitespace-nowrap">Reading Challenge</a>
+                        <a href="{% url 'recommendations' %}" class="block px-4 py-2 hover:bg-blue-700 whitespace-nowrap">Recommendations</a>
+                        <a href="{% url 'family_sharing' %}" class="block px-4 py-2 hover:bg-blue-700 whitespace-nowrap">Family Sharing</a>
+                    </div>
+                </div>
+                
                 {% if user.is_authenticated %}
                     <a href="{% url 'account' %}" class="hover:text-blue-200 transition duration-300">My Account</a>
                     <a href="{% url 'rental_history' %}" class="hover:text-blue-200 transition duration-300">Rental History</a>
                     <span class="text-sm">Welcome, {{ user.username }}</span>
-                    <a href="{% url 'logout' %}" class="hover:text-blue-200 transition duration-300">Logout</a>
+                    <!-- Logout with confirmation -->
+                    <a href="{% url 'logout' %}" 
+                       onclick="return confirm('Are you sure you want to log out?')"
+                       class="hover:text-blue-200 transition duration-300">Logout</a>
                 {% else %}
                     <a href="{% url 'login' %}" class="hover:text-blue-200 transition duration-300">Login</a>
                 {% endif %}
@@ -39,6 +61,10 @@
                     <button type="submit" id="search-button" 
                             class="bg-blue-700 p-2 rounded-r text-white hover:bg-blue-800 transition duration-300">Search</button>
                 </form>
+                {% if user.is_authenticated %}
+                    <!-- ... other auth links ... -->
+                    <a href="{% url 'logout' %}" class="hover:text-blue-200 transition duration-300">Logout</a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -59,11 +85,36 @@
                 <a href="{% url 'home' %}" class="hover:text-blue-200 transition duration-300">Home</a>
                 <a href="{% url 'dashboard' %}" class="hover:text-blue-200 transition duration-300">Dashboard</a>
                 <a href="{% url 'categories' %}" class="hover:text-blue-200 transition duration-300">Categories</a>
+                <a href="{% url 'book_clubs' %}" class="hover:text-blue-200 transition duration-300">Book Clubs</a>
+                <a href="{% url 'reading_challenge' %}" class="hover:text-blue-200 transition duration-300">Challenge</a>
                 <a href="{% url 'contact' %}" class="hover:text-blue-200 transition duration-300">Contact Us</a>
             </div>
             <p class="text-sm">© 2025 Book Rental System. All rights reserved.</p>
         </div>
     </footer>
     <script src="/static/js/main.js"></script>
+    
+    <!-- Dropdown functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make dropdown work on click for mobile
+            const communityButton = document.querySelector('.relative.group button');
+            const communityDropdown = document.querySelector('.relative.group .absolute');
+            
+            if (communityButton && communityDropdown) {
+                communityButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    communityDropdown.classList.toggle('hidden');
+                });
+                
+                // Close dropdown when clicking elsewhere
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.relative.group')) {
+                        communityDropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
